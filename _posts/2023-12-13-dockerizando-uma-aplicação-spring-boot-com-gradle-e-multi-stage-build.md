@@ -2,7 +2,7 @@
 layout: post
 title: Dockerizando uma aplicação Spring Boot com Gradle e multi-stage build
 date: 2023-12-18 21:49 -0300
-categories: [DevOps, Docker]
+categories: [DevOps]
 tags: [docker, gradle, spring_boot]
 ---
 ## O que é multi-stage build?
