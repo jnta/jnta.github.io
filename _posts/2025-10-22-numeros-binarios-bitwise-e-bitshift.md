@@ -106,9 +106,9 @@ public class DecimalToBinary {
 As operações bitwise surgiram naturalmente a partir da própria forma como os computadores foram construídos.  
 Quando os primeiros circuitos digitais começaram a ser projetados, cada componente elétrico só podia estar em dois estados: ligado ou desligado. Isso fazia com que os engenheiros trabalhassem diretamente com os bits, manipulando cada um deles para representar e processar informações.
 
-Com o avanço da eletrônica e da lógica booleana, percebeu-se que era possível realizar cálculos e decisões apenas combinando esses estados binários. Assim nasceram as **operações bitwise**, que aplicam diretamente os princípios da álgebra booleana (AND, OR, XOR e NOT) sobre os bits de um número.
+Com o avanço da eletrônica e da lógica booleana, percebeu-se que era possível realizar cálculos e decisões apenas combinando esses estados binários. Assim nasceram as operações, que aplicam diretamente os princípios da álgebra booleana (AND, OR, XOR e NOT) sobre os bits de um número.
 
-### AND (&)
+### AND (`&`)
 
 #### Contexto
 
@@ -164,15 +164,11 @@ public boolean isOdd(int n) {
 }
 ```
 
-Isso é muito mais rápido do que a divisão (`% 2`), pois o processador executa a operação **AND** em um único ciclo de máquina.
-
-Agora imagine que você queira apagar o bit ativo (1) mais à direita de qualquer número inteiro (O motivo vai ficar claro um pouco mais abaixo). Como você faria isso? 
+Isso é mais rápido do que a divisão (`% 2`), pois o processador executa a operação **AND** em um único ciclo de máquina.
 
 #### Algoritmo de Kernighan (`n & (n - 1)`)
 
-Se tivéssemos que premiar o operador mais eficiente em manipulação de bits, o padrão `n & (n - 1)` seria um forte candidato. A ideia é muito simples, apagar o LSB ativo, mas como isso funciona? 
-
-A mágica por trás disso se resume a como a subtração de 1 afeta a epresentação binária do número.
+A ideia é muito simples, apagar o LSB ativo, e se resume a como a subtração de 1 afeta a epresentação binária do número.
 
 Quando subtraímos 1 de um número binário, o que o processador faz é inverter o estado de todos os bits a partir do primeiro 1 mais à direita.
 
@@ -192,7 +188,7 @@ Ao fazer o AND, combinamos a preservação da Esquerda ($1 \& 1$) com a Garantia
 
 #### LeetCode
 
-Um bom exemplo de aplicabilidade desse padrão é um problema clássico do LeetCode, [Number of bits 1](https://leetcode.com/problems/number-of-1-bits/description/), que como o nome sugere, o objetivo é contar a quantidade de bits ativos em um número.
+Um bom exemplo de aplicabilidade desse padrão é um problema clássico do LeetCode, [191 - Number of bits 1](https://leetcode.com/problems/number-of-1-bits/description/), que como o nome sugere, o objetivo é contar a quantidade de bits ativos em um número.
 
 ```java
 public class BitwiseCounter {
@@ -222,7 +218,7 @@ public class BitwiseCounter {
 
 ```
 
-### OR (|)
+### OR (`|`)
 
 #### Contexto
 
@@ -404,6 +400,97 @@ public class BitwiseORsOfSubarrays {
 }
 
 ```
+
+### XOR (`^`)
+
+O XOR marca as diferenças entre dois números.
+- Se os bits são iguais (0 e 0, ou 1 e 1) → resultado é 0.
+- Se são diferentes (0 e 1, ou 1 e 0) → resultado é 1.
+    
+|A|B|A ^ B|
+|---|---|---|
+|0|0|0|
+|0|1|1|
+|1|0|1|
+|1|1|0|
+
+  `0101  (5) ^ 0011  (3)   ----   0110  (6)`
+
+No exemplo acima, o resultado `0110` indica exatamente onde os bits de `5` e `3` divergem.
+
+ o XOR é **reversível**, aplicar a mesma operação duas vezes com o mesmo número te leva de volta ao valor original:
+
+`x ^ y ^ y = x`
+
+Operações em pares se anulam, isso significa que:
+
+`x ^ x = 0` e `x ^ 0 = x`
+
+Ele é **associativo e comutativo**, ou seja, você pode mudar a ordem das operações à vontade.
+
+#### Aplicações práticas
+
+O **XOR**  aparece em criptografia, compressão e até em truques de entrevista técnica.
+
+Um dos usos clássicos é trocar dois valores sem usar uma variável temporária:
+
+```java
+int a = 5; // 0101 
+int b = 3; // 0011 
+a = a ^ b; // a = 6 (0110) 
+b = a ^ b; // b = 5 (0101) 
+a = a ^ b; // a = 3 (0011)  
+System.out.println("a = " + a + ", b = " + b);
+```
+
+#### LeetCode
+
+[136 - Single Number](https://leetcode.com/problems/single-number/description/),  Dado um array onde todo número aparece duas vezes, exceto um — encontre esse número.
+
+```java
+public int singleNumber(int[] nums) {
+    int result = 0;
+    for (int n : nums) {
+	    // Como números repetidos se anulam
+	    // vai restar somente o número que é único
+        result ^= n;
+    }
+    return result;
+}
+```
+
+
+[268 - Missing Number](https://leetcode.com/problems/missing-number/description/), Dado um array contendo números de 0 a n, com um faltando, encontre o ausente.
+
+Por exemplo:
+`nums = [3, 0, 1]`
+O número que falta é o `2`, certo?  
+
+Até seria possível resolver esse problema utilizando a fórmula da soma dos primeiros $N$ números naturais, mas a ideia aqui é resolver sem usar soma, nem estruturas extras, Só lógica pura.
+
+Partindo para a resolução do problema, a lógica é simples, o array devia conter:
+
+`[0, 1, 2, 3]`
+
+mas veio:
+
+`[3, 0, 1]`
+
+Se eu fizer XOR de todos os índices esperados (0, 1, 2, 3)  
+e também de todos os números do array (3, 0, 1)**,  
+os números que aparecerem nas duas listas se anulam.
+
+
+```java
+public int missingNumber(int[] nums) {
+    int result = nums.length; // começa com n
+    for (int i = 0; i < nums.length; i++) {
+        result ^= i ^ nums[i];
+    }
+    return result;
+}
+```
+
 
 
 
