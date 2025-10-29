@@ -492,6 +492,128 @@ public int missingNumber(int[] nums) {
 ```
 
 
+### NOT (`~`)
+
+O NOT é um **inversor**, cada bit que é `1` vira `0`, e cada `0` vira `1`.
+
+|A|~A|
+|---|---|
+|0|1|
+|1|0|
+
+Um exemplo simples:
+
+`A =  0101 (5) ~A = 1010 (-6)`
+
+Sim, o resultado é `-6` e não `10`, mas por quê?
+
+
+#### Complemento de dois
+
+Para um número `x`, representado em `n` bits:
+
+$$\text{Valor}(x) = 
+\begin{cases} 
+x & \text{se o bit mais à esquerda (MSB) for } 0 \\ 
+x - 2^n & \text{se o bit mais à esquerda for } 1 
+\end{cases}$$
+
+Isso significa:
+
+- `00000101` = 5
+- `11111011` = 251 − 256 = **−5**
+    
+
+Ou seja, o bit mais significativo “diz” que aquele número é negativo.
+
+Para obter o negativo de um número binário:
+1. Inverta todos os bits (`~`)
+2. Some 1
+
+Qual o conceito por trás disso?
+
+Antes dessa convenção, computadores antigos usavam representações como **sinal e magnitude** (um bit para o sinal e o resto para o valor). Isso funcionava mas complicava as operações aritméticas, principalmente subtrações.  
+O complemento de dois foi uma forma de representar números negativos sem precisar criar regras novas de soma e subtração.
+
+Matemáticamente, o computador trabalha com **n bits fixos**.  
+Isso significa que ele só consegue representar números de `0` até `2ⁿ - 1`.
+
+Por exemplo, com 8 bits:
+
+```
+0  →  00000000
+255 → 11111111
+```
+
+Agora, queremos representar números **negativos** sem criar um novo bit de sinal (como o sistema “sinal e magnitude” fazia).  
+A sacada do **complemento de dois** é reinterpretar esses mesmos 256 padrões binários (de 00000000 a 11111111) de modo que **a metade de cima** (128 a 255) represente números negativos.
+
+
+
+Por que o $+1$ é Essencial?
+
+1. **Eliminando o Zero Negativo:** No sistema de Complemento de Um, existem duas representações para o zero: $00\dots00$ (zero positivo) e $11\dots11$ (zero negativo). Isso desperdiça uma combinação de bits e complica o hardware. O sistema de Complemento de Dois elimina esse problema.
+        
+2. **Fechamento do Ciclo:** O $+1$ é o **ajuste de magnitude** que move a representação do Complemento de Um para a representação correta do Complemento de Dois. Ele garante que a soma de $x$ e seu oposto seja exatamente $2^n$, causando o _wrap-around_ (o "envolvimento" ou ciclo) que resulta em zero no sistema de $n$ bits.
+    
+
+|**Número (8 bits)**|**Valor Decimal**|**Binário**|
+|---|---|---|
+|**$x$**|$5$|$\mathbf{00000101}$|
+|**$\sim x$** (Comp. de Um)|$-6$ (Não é $-5$!)|$11111010$|
+|**$\sim x + 1$** (Comp. de Dois)|$-5$|$\mathbf{11111011}$|
+
+Se tivéssemos usado apenas $\sim x$, a soma seria: $5 + (-6) = -1$. O **$+1$** corrige esse deslocamento de $1$, garantindo que a soma em $n$ bits seja precisamente $0$.
+
+
+
+#### LeetCode
+
+[476 - Number Complement](https://leetcode.com/problems/number-complement/description/), Dado um número positivo, encontre o complemento do seu binário, ou seja, inverta todos os bits significativos. 
+
+**Exemplo:**
+
+```
+Input: 5   (101) 
+Output: 2  (010)
+```
+
+**Ideia:**  
+Aplicar o **NOT**, mas apenas sobre os bits usados pelo número original (sem afetar os zeros à esquerda), então usamos uma _máscara_ para limitar o escopo do `~`.
+
+
+```java
+public int findComplement(int num) {
+    // Encontra o bit mais significativo (o mais alto) que está em 1.
+    // Exemplo: num = 5 (101), Integer.highestOneBit(5) = 100 (4 em decimal)
+    // Esse método já te dá direto o "limite" do número.
+
+    // Faz um deslocamento de um bit à esquerda (<< 1).
+    // Isso dobra o valor, ou seja: 100 << 1 = 1000 (8 em decimal).
+    // Ainda não entramos em detalhes sobre bitshift operations, 
+    // mas o conceito básico é que deslocar à esquerda é o mesmo que multiplicar por 2.
+    // (Falaremos mais sobre isso mais adiante no artigo.)
+
+    // Subtrai 1, para criar uma máscara com todos os bits 1 abaixo do bit mais alto.
+    // 1000 - 1 = 0111 (7 em decimal)
+    // Agora temos a máscara certa para o número: ela cobre apenas os bits “úteis” de num.
+    int mask = (Integer.highestOneBit(num) << 1) - 1;
+
+    // Aplica o operador NOT (~) em num, invertendo todos os bits.
+    // ~101 → ...11111010 (lembrando que NOT inverte todos os bits, até os "fora" do número)
+    // Por isso usamos a máscara para limpar o excesso e deixar só os bits relevantes.
+
+    // O "& mask" faz exatamente isso: mantém apenas os bits válidos.
+    // Exemplo:
+    // num = 5 (101)
+    // ~num = ...11111010
+    // mask = 111
+    // Resultado final: 010 (2)
+    return ~num & mask;
+}
+
+```
+
 
 
 ## Bitshift Operations
@@ -543,7 +665,7 @@ public class LeftShiftExample {
 }
 ```
 
-#### 2. Deslocamento Lógico para a Direita (Logical Right Shift $\gg$ ou $\ggg$ em Java)
+#### 2. Deslocamento Lógico para a Direita (Logical Right Shift $\ggg$)
 
 - **Como Funciona:** Todos os bits são movidos para a direita.
 - **Preenchimento:** Novos bits $0$ (zero) são introduzidos na extremidade esquerda (MSB), independentemente do sinal do número.
@@ -601,9 +723,7 @@ public class LogicalRightShiftExample {
 #### 3. Deslocamento Aritmético para a Direita (Arithmetic Right Shift $\gg$)
 
 - **Como Funciona:** Todos os bits são movidos para a direita.
-    
 - **Preenchimento:** O bit da extremidade esquerda (o **Bit de Sinal** - MSB) é **replicado** para preservar o sinal do número.
-    
 - **Uso:** É a forma padrão de realizar uma **divisão inteira por potências de 2** para números **com sinal** (inteiros positivos ou negativos), mantendo o sinal do resultado.
     
 
