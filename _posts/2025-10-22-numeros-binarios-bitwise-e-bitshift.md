@@ -2,6 +2,8 @@
 layout: post
 title: 'Números Binários, Bitwise e Bitshift'
 date: 2025-10-22 19:20 -0300
+categories: [Fundamentos]
+tags: [binary, bitshift, bitwise]
 math: true
 ---
 
