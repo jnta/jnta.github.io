@@ -103,7 +103,7 @@ public class DecimalToBinary {
 
 ## Bitwise Operations
 
-As operações bitwise surgiram naturalmente a partir da própria forma como os computadores foram construídos.  
+Bitwise Operations surgiram naturalmente a partir da própria forma como os computadores foram construídos.  
 Quando os primeiros circuitos digitais começaram a ser projetados, cada componente elétrico só podia estar em dois estados: ligado ou desligado. Isso fazia com que os engenheiros trabalhassem diretamente com os bits, manipulando cada um deles para representar e processar informações.
 
 Com o avanço da eletrônica e da lógica booleana, percebeu-se que era possível realizar cálculos e decisões apenas combinando esses estados binários. Assim nasceram as operações, que aplicam diretamente os princípios da álgebra booleana (AND, OR, XOR e NOT) sobre os bits de um número.
@@ -266,7 +266,7 @@ Ou, de forma mais idiomática em Java:
 
 #### LeetCode
 
-[Bitwise ORs of Subarrays](https://leetcode.com/problems/bitwise-ors-of-subarrays/), Dado um array `arr` de inteiros não-negativos, calcule quantos valores distintos podem aparecer como OR bit a bit (`|`) de algum subarray de `arr`.  
+[898 - Bitwise ORs of Subarrays](https://leetcode.com/problems/bitwise-ors-of-subarrays/), Dado um array `arr` de inteiros não-negativos, calcule quantos valores distintos podem aparecer como OR bit a bit (`|`) de algum subarray de `arr`.  
 Ou seja: para todas as subarrays possíveis, compute o OR de seus elementos e quantos resultados distintos existem.
 
 Exemplo rápido: se `arr = [1,2,3]`, as subarrays e seus ORs são:
@@ -403,6 +403,8 @@ public class BitwiseORsOfSubarrays {
 
 ### XOR (`^`)
 
+#### Contexto
+
 O XOR marca as diferenças entre dois números.
 - Se os bits são iguais (0 e 0, ou 1 e 1) → resultado é 0.
 - Se são diferentes (0 e 1, ou 1 e 0) → resultado é 1.
@@ -494,6 +496,8 @@ public int missingNumber(int[] nums) {
 
 ### NOT (`~`)
 
+#### Contexto
+
 O NOT é um **inversor**, cada bit que é `1` vira `0`, e cada `0` vira `1`.
 
 |A|~A|
@@ -508,7 +512,7 @@ Um exemplo simples:
 Sim, o resultado é `-6` e não `10`, mas por quê?
 
 
-#### Complemento de dois
+##### Complemento de dois
 
 Para um número `x`, representado em `n` bits:
 
@@ -618,7 +622,7 @@ public int findComplement(int num) {
 
 ## Bitshift Operations
 
-São operações que deslocam os bits, para a esquerda ou direita.
+BitShift Operations são operações que deslocam os bits, para a esquerda ou direita.
 Elas são fundamentais em programação de baixo nível, pois permitem manipular dados diretamente no nível binário. 
 
 ### Tipos de Deslocamento
@@ -679,7 +683,7 @@ Imagine a mesma analogia do sistema decimal: quando você remove o último dígi
 423 -> 42 (divisão inteira por 10²)
 ```
 
-O Deslocamento Lógico para a Direita ($N \gg> M$ em Java) repete essa lógica, mas dividindo por potências de $2$ e preenchendo o espaço vazio com $0$.
+O Deslocamento Lógico para a Direita ($N \ggg M$ em Java) repete essa lógica, mas dividindo por potências de $2$ e preenchendo o espaço vazio com $0$.
 
 ```
 40 em binário:    101000
@@ -760,10 +764,162 @@ public class ArithmeticRightShiftExample {
 ```
 
 
-### Aplicabilidade
+#### Aplicabilidade
 
-Essas operações, por serem manipulações diretas de bits, são consideravelmente mais eficientes do que fazer uma multiplicação ou divisão utilizando o módulo de cálculo da CPU.
+Essas operações aparecem o tempo todo em sistemas que precisam extrair ou manipular partes específicas de um valor binário como ler _flags_, otimizar loops ou implementar compressão.
 
-Em problemas como [Divide Two Integers](https://leetcode.com/problems/divide-two-integers/) no LeetCode, você pode implementar divisão usando apenas shifts e subtrações:
+Mas o uso mais interessante é quando elas substituem operações matemáticas mais custosas.  
+Por exemplo, multiplicar e dividir sem usar `*` ou `/` — algo que parece um truque, mas tem raízes históricas em como os processadores foram projetados.  
+
+Os primeiros processadores não tinham instruções de multiplicação ou divisão.  
+Mover os bits era a maneira mais rápida (e barata em ciclos) de multiplicar ou dividir um número por potências de 2.
+
+#### LeetCode
+
+
+##### Divide Two Integers
+
+[29 - Divide Two Integers](https://leetcode.com/problems/divide-two-integers/), dado dois inteiros `dividend` e `divisor`, divida-os sem usar os operadores de multiplicação, divisão ou módulo.
+
+A ideia central é simples:  
+se deslocar os bits para a esquerda (`<<`) multiplica por 2,  
+então podemos usar isso para encontrar **quantas vezes o divisor cabe no dividendo**.
+
+Imagine que queremos dividir `43 ÷ 3`.
+
+Se você for subtraindo 3 várias vezes, vai levar muito tempo.  
+Mas se duplicar o divisor usando **left shift**, dá pra acelerar o processo.
+```
+3 << 0 = 3
+3 << 1 = 6
+3 << 2 = 12 
+3 << 3 = 24 
+3 << 4 = 48  ← passou de 43
+
+```
+
+O maior valor que ainda cabe é `24` (3 << 3).  
+Então sabemos que **8 (2³)** cabe dentro de 43.
+
+Subtraímos:
+
+`43 - 24 = 19`
+
+Agora repetimos o processo com o resto (`19`), até não ser mais possível subtrair.
+
+Somando as potências correspondentes, obtemos o resultado final.
+
+```java
+public class DivideTwoIntegers {
+    public int divide(int dividend, int divisor) {
+        // Casos extremos para evitar overflow
+        if (dividend == Integer.MIN_VALUE && divisor == -1)
+            return Integer.MAX_VALUE;
+        
+        // Define o sinal do resultado
+        boolean negative = (dividend < 0) ^ (divisor < 0);
+        
+        // Trabalhamos com valores positivos
+        long a = Math.abs((long) dividend);
+        long b = Math.abs((long) divisor);
+        int result = 0;
+
+        // Enquanto o dividendo ainda for maior que o divisor
+        while (a >= b) {
+            long temp = b, multiple = 1;
+            
+            // Dobra o divisor enquanto ainda couber
+            // (cada <<1 multiplica por 2)
+            while (a >= (temp << 1)) {
+                temp <<= 1;
+                multiple <<= 1;
+            }
+            
+            // Subtrai o maior múltiplo encontrado
+            a -= temp;
+            result += multiple;
+        }
+
+        return negative ? -result : result;
+    }
+}
+
+```
+
+
+##### Sum of Two Integers
+
+[371 - Sum of Two Integers](https://leetcode.com/problems/sum-of-two-integers/description/), some dois números **sem usar o operador + nem -**.
+
+Na prática, é assim que o próprio **hardware** faz a soma, o operador `+` é apenas uma abstração de algo muito mais simples.
+
+Quando somamos dois bits, o que acontece?
+
+| A   | B   | Soma (`A XOR B`) | Carry (`A AND B`) |
+| --- | --- | ---------------- | ----------------- |
+| 0   | 0   | 0                | 0                 |
+| 0   | 1   | 1                | 0                 |
+| 1   | 0   | 1                | 0                 |
+| 1   | 1   | 0                | 1                 |
+
+O operador **XOR (`^`)** faz exatamente o papel da soma sem carry: ele retorna 1 apenas quando os bits são diferentes.  
+Já o **AND (`&`)** detecta onde há um carry, ou seja, quando ambos os bits são 1.
+
+Mas o carry precisa ser somado e ele vale duas vezes o valor original, então basta deslocar uma casa à esquerda (`<< 1)`.
+
+
+```java
+public int getSum(int a, int b) {
+    while (b != 0) {
+        int carry = (a & b) << 1; // calcula o transporte e desloca
+        a = a ^ b;                // soma parcial (sem carry)
+        b = carry;                // repete até não haver carry
+    }
+    return a;
+}
+```
+
+
+##### Reverse Bits
+
+[191 - Reverse Bits], Dado um número inteiro de 32 bits, você precisa **inverter a ordem dos bits**.
+
+exemplo:
+
+```
+Input:  00000010100101000001111010011100
+Output: 00111001011110000010100101000000
+```
+
+A ideia principal é iterar por todos os bits e em cada iteração:
+
+1. Ler o **último bit** de `n` → `(n & 1)`
+2. Deslocar o resultado atual para a esquerda (`<< 1`)
+3. Inserir o bit lido no resultado
+4. Deslocar `n` para a direita (`>> 1`) 
+5. Repetir
+
+
+```java
+public int reverseBits(int n) {
+    int result = 0;
+
+    // Precisamos percorrer todos os 32 bits
+    for (int i = 0; i < 32; i++) {
+        result <<= 1;          // move o resultado 1 bit para a esquerda
+        result |= (n & 1);     // adiciona o último bit de n ao resultado
+        n >>= 1;               // move n 1 bit para a direita
+    }
+
+    return result;
+}
+
+```
+
+## Conclusão
+
+Tudo o que acontece dentro de um processador, seja um jogo renderizando gráficos, um algoritmo de IA rodando previsões, ou seu navegador abrindo esse arquivo se resume a operações sobre bits. 
+
+No fim, é bonito pensar que toda essa complexidade nasce de algo tão simples.
 
 
