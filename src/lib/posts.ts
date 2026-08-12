@@ -28,7 +28,7 @@ function wordsOf(text: string): number {
 
 export function readingTime(body: string): string {
   const minutes = Math.max(1, Math.ceil(wordsOf(body) / 200));
-  return `${minutes} min read`;
+  return `${minutes} min de leitura`;
 }
 
 export async function getSortedPosts() {

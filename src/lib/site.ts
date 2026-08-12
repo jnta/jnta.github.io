@@ -2,9 +2,9 @@ export const SITE = {
   title: 'Jônata Albuquerque',
   name: 'Jônata Albuquerque',
   tagline:
-    'Explorando Engenharia de Software: Ferramentas, Arquitetura, Soluções e Melhores práticas',
+    'Notas de engenharia de software: ferramentas, arquitetura e decisões técnicas.',
   description:
-    'Notas de engenharia e design de software: ferramentas, arquitetura, soluções e melhores práticas.',
+    'Notas práticas de engenharia e design de software: arquitetura, ferramentas e boas decisões, em português.',
   url: 'https://jnta.github.io',
   email: 'jonata.a@outlook.com',
   lang: 'pt-BR',

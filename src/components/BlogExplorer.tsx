@@ -57,7 +57,7 @@ function SearchBar({ value, onChange }: { value: string; onChange: (v: string) =
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Buscar artigos, conceitos ou notas de diagramas..."
+        placeholder="Buscar artigos, tópicos ou tecnologias..."
         className="h-10 w-full rounded-md border border-line bg-background pl-9 pr-9 text-sm text-ink placeholder:text-muted focus:border-terracotta focus:outline-none"
       />
       {value && (
@@ -255,7 +255,7 @@ export default function BlogExplorer({
           className="inline-flex w-fit items-center gap-2 rounded-md border border-line px-3 py-2 text-sm text-ink lg:hidden"
         >
           <IconSliders  className="h-4 w-4 text-terracotta" />
-          Filtrar tópicos
+          Filtrar
         </button>
 
         <aside className="hidden w-60 shrink-0 lg:block">{filtersPanel}</aside>

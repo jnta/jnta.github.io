@@ -78,7 +78,7 @@ export default function SidebarFilters(props: Props) {
     <div className="rounded-lg border border-line bg-surface/30 p-4">
       <h2 className="mb-2 flex items-center gap-2 font-brand text-xl font-semibold text-ink">
         <IconFilter className="h-4 w-4 text-terracotta" aria-hidden="true" />
-        Filtrar tópicos
+        Filtros
       </h2>
 
       <Accordion.Root type="multiple">
@@ -105,20 +105,18 @@ export default function SidebarFilters(props: Props) {
           ))}
         </Group>
 
-        <Group value="stack" title="Stack">
-          {groups.stack.length > 0 ? (
-            groups.stack.map((s) => (
+        {groups.stack.length > 0 && (
+          <Group value="stack" title="Stack">
+            {groups.stack.map((s) => (
               <ItemButton
                 key={s}
                 label={s}
                 active={stack.includes(s)}
                 onClick={() => onToggleStack(s)}
               />
-            ))
-          ) : (
-            <p className="px-2 py-1.5 text-sm text-muted">Nenhum</p>
-          )}
-        </Group>
+            ))}
+          </Group>
+        )}
       </Accordion.Root>
     </div>
   );

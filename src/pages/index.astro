@@ -2,7 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BlogExplorer from '../components/BlogExplorer';
 import { getSortedPosts, listOf, listOfStack, listOfTags, toCardData } from '../lib/posts';
-import { SITE } from '../lib/site';
 
 const posts = await getSortedPosts();
 const cards = posts.map(toCardData);
@@ -15,13 +14,6 @@ const groups = {
 
 <BaseLayout>
   <div class="mx-auto max-w-[1400px] px-6 py-10 sm:px-8">
-    <section class="mb-10">
-      <h1 class="font-brand text-4xl font-bold tracking-tight text-ink sm:text-5xl">
-        Artigos &amp; notas de sistemas
-      </h1>
-      <p class="mt-3 max-w-2xl text-muted">{SITE.tagline}</p>
-    </section>
-
     <BlogExplorer client:load posts={cards} groups={groups} />
   </div>
 </BaseLayout>
