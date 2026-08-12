@@ -1,18 +1,134 @@
+# AGENTS.md
+
+Personal blog for Jonata Albuquerque (`jnta.github.io`) — an editorial tech blog in pt-BR, built with Astro. Visual identity is **rigid minimalism + cross-hatching** (Uber-style high contrast with hand-drawn/technical textures).
+
 ## Development
 
-When starting the dev server, use background mode:
+Start the dev server in background mode:
 
 ```
 astro dev --background
 ```
 
-Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
+Manage it with `astro dev stop`, `astro dev status`, `astro dev logs`. For a production build and type-check:
+
+```
+npm run build
+npm run astro -- check   # or `npx astro check`
+```
+
+`astro` is installed globally (v7.2.1), matching `package.json`. Never commit `node_modules/`, `dist/` or `.astro/` (already in `.gitignore`).
+
+## Stack
+
+- **Framework:** Astro v7 (static output) + React islands (`client:load`)
+- **Styling:** Tailwind CSS v4 (CSS-first `@theme`), no config file
+- **Content:** MDX via `@astrojs/mdx`, content collections with the glob loader
+- **Math:** `remark-math` + `rehype-katex` (KaTeX)
+- **Icons:** inline SVGs in `src/components/icons.tsx` (no external icon lib)
+- **Fonts:** self-hosted via Fontsource (see Design System)
+
+## Design System
+
+The single source of truth for fonts, colors, radii and shadows is **`src/styles/tokens.css`**. To restyle the whole site you only edit that file (plus `src/styles/fonts.ts` for font packages) — layout never changes.
+
+### Tokens (`src/styles/tokens.css`)
+
+| Token | Light | Dark | Usage |
+|---|---|---|---|
+| `--background` | `#ffffff` | `#0a0a0c` | page bg |
+| `--surface` | `#ffffff` | `#111113` | cards/panels |
+| `--ink` | `#111111` | `#f0f0f0` | primary text, diagram strokes |
+| `--muted` | `#5a5a5e` | `#9a9aa0` | secondary text/metadata |
+| `--line` | `#111111` | `#333338` | borders |
+| `--terracotta` | `#0055ff` | `#3b82f6` | **blue accent** — links, hover, focus, active filters |
+| `--olive` | `#00ff66` | `#00ff66` | **green accent** — tag badges |
+
+- **Fonts:** `--font-brand` = Space Grotesk (headings/brand), `--font-sans` = Inter (body), `--font-mono` = JetBrains Mono (code/tags/labels).
+- **Radii:** all `0px` (fully sharp corners).
+- **Shadow:** `--shadow-lift: 4px 4px 0 0 var(--ink)` — hard offset shadow (black in light, white "chalk" in dark). No soft blur shadows.
+
+Tailwind utilities are wired in `src/styles/global.css` via `@theme inline`, producing semantic classes: `bg-background`, `bg-surface`, `text-ink`, `text-muted`, `border-line`, `text-terracotta`, `text-olive`, `bg-overlay`. Always use these — never hardcode hex colors in components.
+
+### Theme switching
+
+Light/dark is driven by `data-theme` on `<html>` (defaults to `prefers-color-scheme`, persisted to `localStorage`). Dark overrides live under `[data-theme='dark']` in `tokens.css`. The no-FOUC bootstrap is an inline script in `src/layouts/BaseLayout.astro`.
+
+### Hatching
+
+Custom Tailwind utilities in `global.css`:
+
+- `hatch` — 45° diagonal lines (`repeating-linear-gradient` using `var(--ink)`)
+- `hatch-cross` — cross-hatch (two opposing gradients)
+
+Used for section dividers (header/footer/article separators) and card hover fills. Because they use `var(--ink)`, they invert automatically in dark mode (black lines on white → white "chalk" lines on black).
+
+### Sticky header
+
+`Header` is sticky by default (`sticky` prop on `Header.astro` → `stickyHeader` on `BaseLayout`). Article pages pass `stickyHeader={false}` so the reading view scrolls freely.
+
+## Writing Posts
+
+Posts live in `src/content/blog/*.mdx`. One file per post; the filename becomes the slug (URL `/blog/<slug>/`). Frontmatter schema is in `src/content.config.ts`:
+
+```yaml
+---
+title: "Título do artigo"
+description: "Resumo curto (1-2 frases). Aparece no card e como 'Sobre este artigo'."
+date: 2024-08-15
+category: "Boas práticas"        # single — feeds the "Categoria" filter
+tags: [documentation, rfc]        # feeds the "Tópicos" filter
+stack: [Docker, Gradle]           # feeds the "Stack" filter + "Ferramentas" on the article
+topic: "Documentação"             # optional badge on the card footer (defaults to category)
+cover: "rfc"                      # short label rendered in the diagram thumbnail
+math: false                       # set true to enable KaTeX ($...$ / $$...$$)
+draft: false                      # true = excluded from the build
+---
+```
+
+Notes:
+
+- **Reading time** is computed automatically from body word count at 200 wpm (`readingTime` in `src/lib/posts.ts`).
+- Categories, tags and stack values are auto-collected for the sidebar filters — no separate registry to update.
+- The `cover` value is a short mono label drawn inside the generated diagram (e.g. `"multi-stage"`, `"rfc"`, `"0101"`).
+- For math-heavy posts set `math: true` and write LaTeX with `$...$` (inline) and `$$...$$` (block). KaTeX is already configured.
+- Content is in pt-BR. Code fences use plain markdown (```dockerfile, ```shell, etc.).
+
+## Images & Diagrams
+
+- Use **SVG only** (no raster assets). Diagram card thumbnails are generated by the `Diagram` component (`src/components/Diagram.tsx`).
+- `Diagram` takes `seed` (unique string → deterministic layout), `label` (mono label), optional `className` and `children`. It renders a hand-drawn wobbly frame, 2–3 connected nodes, and one accent node filled with a cross-hatch pattern.
+- Draw all strokes/fills with CSS variables — `var(--ink)`, `var(--terracotta)`, `var(--surface)` — **not** literal colors, so diagrams auto-invert in dark mode. The `stroke="currentColor"`/`var(--ink)` approach is the requirement.
+- Card thumbnails are `aspect-[16/10]`. Create custom technical diagrams in **Excalidraw/Tldraw** (hatch/`hachure` fills) or Mermaid, exported as SVG, and embed them as MDX components.
+- Hatching fills use the same diagonal line language as the UI (see Hatching section).
+
+## Animations & Interactions
+
+Keep motion subtle and fast (150–200ms). Existing patterns to reuse:
+
+- **Card hover** (`BlogExplorer.tsx`): `-translate-y-1` + hard `shadow-lift` + a `hatch` overlay fading in (`opacity-0 → opacity-[0.12]`) + diagram scale `1.04`.
+- **Theme toggle** (`ThemeToggle.tsx`): swaps `data-theme` + `localStorage`; icon cross-fades Moon/Sun.
+- **Accordion** (`SidebarFilters.tsx`): Radix Accordion, `animate-accordion-down`/`-up` (0.2s ease-out), collapsed by default.
+- **Filtering/search/sort** (`BlogExplorer.tsx`): fully client-side, state synced to URL params (`?category=`, `?tags=`, `?stack=`, `?search=`, `?sort=`) via `history.replaceState` — no full page reload. Listen to `popstate` for back/forward.
+- Respect `prefers-reduced-motion` when adding new animations.
+
+## Layout Map
+
+- `src/layouts/BaseLayout.astro` — shell (head, theme bootstrap, header, footer)
+- `src/components/Header.astro` — brand + socials + theme toggle (sticky)
+- `src/components/BlogExplorer.tsx` — index: search, sort, view toggle, sidebar state, card grid/list
+- `src/components/SidebarFilters.tsx` — "Filtrar tópicos" accordion
+- `src/components/Diagram.tsx` — generated hand-drawn SVG
+- `src/components/ThemeToggle.tsx`, `SocialLinks.tsx`, `icons.tsx`
+- `src/pages/index.astro`, `src/pages/blog/[slug].astro`, `src/pages/rss.xml.ts`
+- `src/lib/site.ts` — name, tagline, socials (GitHub/LinkedIn/X/RSS); `src/lib/posts.ts` — collection helpers
+- `src/lib/types.ts` — shared `PostCardData`/`FilterGroups`
+
+Social links open in a new tab (`target="_blank"` + `rel="noopener noreferrer"`). The X/Twitter entry in `site.ts` has an empty `href` — add a URL to surface it.
 
 ## Documentation
 
-Full documentation: https://docs.astro.build
-
-Consult these guides before working on related tasks:
+Full docs: https://docs.astro.build
 
 - [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
 - [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
