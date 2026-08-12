@@ -10,7 +10,8 @@ export default function SocialLinks() {
             href={social.href}
             aria-label={social.label}
             title={social.label}
-            rel="me"
+            target="_blank"
+            rel="me noopener noreferrer"
             className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface hover:text-ink"
           >
             <SocialIcon icon={social.icon} className="h-[18px] w-[18px]" />

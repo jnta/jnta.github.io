@@ -76,12 +76,12 @@ export default function SidebarFilters(props: Props) {
 
   return (
     <div className="rounded-lg border border-line bg-surface/30 p-4">
-      <h2 className="mb-2 flex items-center gap-2 font-brand text-xl font-medium text-ink">
+      <h2 className="mb-2 flex items-center gap-2 font-brand text-xl font-semibold text-ink">
         <IconFilter className="h-4 w-4 text-terracotta" aria-hidden="true" />
         Filtrar tópicos
       </h2>
 
-      <Accordion.Root type="multiple" defaultValue={['categoria', 'topicos', 'stack']}>
+      <Accordion.Root type="multiple">
         <Group value="categoria" title="Categoria">
           {groups.categories.map((c) => (
             <ItemButton

@@ -1,6 +1,6 @@
 export const SITE = {
-  title: 'Jonata Albuquerque',
-  name: 'Jonata Albuquerque',
+  title: 'Jônata Albuquerque',
+  name: 'Jônata Albuquerque',
   tagline:
     'Explorando Engenharia de Software: Ferramentas, Arquitetura, Soluções e Melhores práticas',
   description:

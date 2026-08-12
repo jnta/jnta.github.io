@@ -7,9 +7,10 @@ import { SITE } from '../lib/site';
 interface Props {
   title?: string;
   description?: string;
+  stickyHeader?: boolean;
 }
 
-const { title = SITE.title, description = SITE.description } = Astro.props;
+const { title = SITE.title, description = SITE.description, stickyHeader = true } = Astro.props;
 ---
 
 <!doctype html>
@@ -39,11 +40,12 @@ const { title = SITE.title, description = SITE.description } = Astro.props;
     </script>
   </head>
   <body class="flex min-h-screen flex-col">
-    <Header />
+    <Header sticky={stickyHeader} />
     <main class="flex-1">
       <slot />
     </main>
-    <footer class="border-t border-line">
+    <footer>
+      <div class="hatch h-2 opacity-60" aria-hidden="true"></div>
       <div class="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-2 px-6 py-6 text-center sm:flex-row sm:text-left">
         <p class="font-mono text-xs text-muted">
           &copy; {new Date().getFullYear()} {SITE.name}

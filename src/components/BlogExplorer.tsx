@@ -118,7 +118,7 @@ function SortSelect({ value, onChange }: { value: Sort; onChange: (v: Sort) => v
 function Card({ post }: { post: PostCardData }) {
   const href = `/blog/${post.slug}/`;
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface/40 transition-all duration-200 hover:-translate-y-1 hover:shadow-lift">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface/40 transition-all duration-200 hover:-translate-y-1 hover:shadow-lift">
       <a href={href} className="block aspect-[16/10] overflow-hidden border-b border-line" tabIndex={-1}>
         <Diagram
           seed={post.slug}
@@ -127,7 +127,7 @@ function Card({ post }: { post: PostCardData }) {
         />
       </a>
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <h3 className="font-brand text-xl font-medium leading-snug">
+        <h3 className="font-brand text-xl font-semibold leading-snug">
           <a href={href} className="line-clamp-2 transition-colors hover:text-terracotta">
             {post.title}
           </a>
@@ -142,6 +142,10 @@ function Card({ post }: { post: PostCardData }) {
           </span>
         </div>
       </div>
+      <div
+        className="pointer-events-none absolute inset-0 hatch opacity-0 transition-opacity duration-200 group-hover:opacity-[0.12]"
+        aria-hidden="true"
+      />
     </article>
   );
 }
@@ -149,12 +153,12 @@ function Card({ post }: { post: PostCardData }) {
 function ListRow({ post }: { post: PostCardData }) {
   const href = `/blog/${post.slug}/`;
   return (
-    <article className="group flex gap-5 overflow-hidden rounded-lg border border-line bg-surface/40 p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-lift">
+    <article className="group relative flex gap-5 overflow-hidden rounded-lg border border-line bg-surface/40 p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-lift">
       <a href={href} className="hidden w-40 shrink-0 overflow-hidden rounded-md border border-line sm:block" tabIndex={-1}>
         <Diagram seed={post.slug} label={post.cover} className="transition-transform duration-300 group-hover:scale-[1.04]" />
       </a>
       <div className="flex min-w-0 flex-1 flex-col">
-        <h3 className="font-brand text-xl font-medium leading-snug">
+        <h3 className="font-brand text-xl font-semibold leading-snug">
           <a href={href} className="line-clamp-2 transition-colors hover:text-terracotta">
             {post.title}
           </a>
@@ -169,6 +173,10 @@ function ListRow({ post }: { post: PostCardData }) {
           </span>
         </div>
       </div>
+      <div
+        className="pointer-events-none absolute inset-0 hatch opacity-0 transition-opacity duration-200 group-hover:opacity-[0.12]"
+        aria-hidden="true"
+      />
     </article>
   );
 }
@@ -239,17 +247,6 @@ export default function BlogExplorer({
 
   return (
     <div>
-      {/* Sub-header bar */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-        <p className="font-mono text-xs uppercase tracking-wider text-muted">
-          <span className="text-terracotta">/</span> Artigos &amp; notas de sistemas
-        </p>
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs text-muted">{filtered.length} artigos</span>
-          <SortSelect value={state.sort} onChange={(s) => update({ sort: s })} />
-        </div>
-      </div>
-
       <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
         {/* Mobile drawer trigger */}
         <button
@@ -266,7 +263,10 @@ export default function BlogExplorer({
         <main className="min-w-0 flex-1">
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <SearchBar value={state.search} onChange={(v) => update({ search: v })} />
-            <ViewToggle view={view} onChange={setView} />
+            <div className="flex items-center gap-3">
+              <SortSelect value={state.sort} onChange={(s) => update({ sort: s })} />
+              <ViewToggle view={view} onChange={setView} />
+            </div>
           </div>
 
           {hasFilters && (

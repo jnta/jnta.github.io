@@ -130,10 +130,19 @@ export default function Diagram({
           markerHeight="7"
           orient="auto-start-reverse"
         >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--line)" />
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--ink)" />
         </marker>
+        <pattern
+          id={`hatch-${seed}`}
+          width="6"
+          height="6"
+          patternUnits="userSpaceOnUse"
+          patternTransform="rotate(45)"
+        >
+          <line x1="0" y1="0" x2="0" y2="6" stroke="var(--terracotta)" strokeWidth="1.2" />
+        </pattern>
       </defs>
-      <path d={frame} className="diagram-stroke" stroke="var(--line)" strokeWidth="1.5" />
+      <path d={frame} className="diagram-stroke" stroke="var(--ink)" strokeWidth="1.5" />
 
       <text
         x="22"
@@ -151,7 +160,7 @@ export default function Diagram({
           key={`arrow-${i}`}
           d={d}
           className="diagram-stroke"
-          stroke="var(--line)"
+          stroke="var(--ink)"
           strokeWidth="1.5"
           markerEnd="url(#arrowhead)"
         />
@@ -161,9 +170,8 @@ export default function Diagram({
         <g key={`node-${i}`}>
           <path
             d={wobbleRect(rnd, n.x, n.y, n.w, n.h, 2)}
-            fill={i === accentNode ? 'var(--terracotta)' : 'var(--surface)'}
-            fillOpacity={i === accentNode ? 0.14 : 0.6}
-            stroke={i === accentNode ? 'var(--terracotta)' : 'var(--line)'}
+            fill={i === accentNode ? `url(#hatch-${seed})` : 'var(--surface)'}
+            stroke={i === accentNode ? 'var(--terracotta)' : 'var(--ink)'}
             strokeWidth="1.5"
             className="diagram-stroke"
           />
