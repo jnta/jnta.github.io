@@ -1,0 +1,47 @@
+/* =====================================================================
+   Design Tokens — single source of truth.
+   Change fonts, colors, radii and shadows here.
+   ===================================================================== */
+
+:root {
+  /* Tipografia (font stacks) */
+  --font-brand: 'Newsreader Variable', 'Newsreader', Georgia, 'Times New Roman',
+    serif;
+  --font-sans: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif,
+    system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace,
+    'SFMono-Regular', Menlo, monospace;
+
+  /* Cores — Light (Papel & Nanquim) */
+  --background: #fbf9f5;
+  --surface: #f3efe6;
+  --ink: #1f1e1b;
+  --muted: #6b6860;
+  --line: #e5dfc9;
+  --terracotta: #cc5a37;
+  --olive: #5b7065;
+
+  /* Raios (border radius) */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Sombras e sobreposições */
+  --shadow-lift: 0 8px 30px -12px rgba(0, 0, 0, 0.25);
+  --overlay: rgba(0, 0, 0, 0.4);
+
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  /* Cores — Dark (Obsidiana & Leitura Noturna) */
+  --background: #141413;
+  --surface: #1e1e1c;
+  --ink: #ece9e2;
+  --muted: #9e9a90;
+  --line: #2a2a27;
+  --terracotta: #e07a5f;
+  --olive: #819b8d;
+
+  color-scheme: dark;
+}

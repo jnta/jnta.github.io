@@ -1,0 +1,106 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CopyBox from '../../components/CopyBox';
+import { getCollection, render } from 'astro:content';
+import { readingTime } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const minutes = readingTime(post.body ?? '');
+const fullDate = post.data.date.toLocaleDateString('pt-BR', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+const prompt = `Explique o conceito central do artigo "${post.data.title}" com exemplos práticos, em português.`;
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <div class="mx-auto max-w-[1400px] px-6 py-10 sm:px-8">
+    <article>
+      <header class="mx-auto max-w-[720px]">
+        <a
+          href="/"
+          class="font-mono text-xs uppercase tracking-wider text-muted transition-colors hover:text-terracotta"
+        >
+          ← Início
+        </a>
+        <h1 class="mt-4 font-brand text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl">
+          {post.data.title}
+        </h1>
+        <p class="mt-4 text-lg text-muted">{post.data.description}</p>
+
+        <div class="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line pb-6">
+          <span class="rounded-md border border-line px-2 py-0.5 font-mono text-xs text-olive">
+            {post.data.topic || post.data.category}
+          </span>
+          <span class="font-mono text-xs text-muted">{fullDate}</span>
+          <span class="font-mono text-xs text-muted">·</span>
+          <span class="font-mono text-xs text-muted">{minutes}</span>
+        </div>
+      </header>
+
+      <div class="mx-auto mt-10 flex max-w-[1400px] flex-col gap-10 lg:flex-row">
+        <div class="article-body mx-auto min-w-0 max-w-[720px] flex-1 lg:mx-0">
+          <Content />
+        </div>
+
+        <aside class="mx-auto w-full max-w-[720px] shrink-0 lg:w-[320px] lg:max-w-none">
+          <div class="flex flex-col gap-6 lg:sticky lg:top-8">
+            <div class="rounded-lg border border-line bg-surface/40 p-4">
+              <h2 class="font-mono text-xs uppercase tracking-wider text-muted">Sobre este artigo</h2>
+              <p class="mt-2 text-sm leading-relaxed text-ink">{post.data.description}</p>
+            </div>
+
+            <div class="rounded-lg border border-line bg-surface/40 p-4">
+              <h2 class="font-mono text-xs uppercase tracking-wider text-muted">Metadados</h2>
+              <dl class="mt-2 space-y-2 font-mono text-xs">
+                <div class="flex justify-between gap-2">
+                  <dt class="text-muted">Leitura</dt>
+                  <dd class="text-ink">{minutes}</dd>
+                </div>
+                <div class="flex justify-between gap-2">
+                  <dt class="text-muted">Publicado</dt>
+                  <dd class="text-ink">{fullDate}</dd>
+                </div>
+                <div class="flex justify-between gap-2">
+                  <dt class="text-muted">Categoria</dt>
+                  <dd class="text-ink">{post.data.category}</dd>
+                </div>
+              </dl>
+            </div>
+
+            {
+              post.data.stack.length > 0 && (
+                <div class="rounded-lg border border-line bg-surface/40 p-4">
+                  <h2 class="font-mono text-xs uppercase tracking-wider text-muted">Ferramentas</h2>
+                  <ul class="mt-2 flex flex-wrap gap-1.5">
+                    {post.data.stack.map((s) => (
+                      <li class="rounded-md border border-line px-2 py-0.5 font-mono text-xs text-ink">
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            }
+
+            <CopyBox client:load text={prompt} />
+          </div>
+        </aside>
+      </div>
+    </article>
+
+    <footer class="mx-auto mt-16 max-w-[720px] border-t border-line pt-6">
+      <a href="/" class="font-mono text-xs text-muted transition-colors hover:text-terracotta">
+        ← Voltar para os artigos
+      </a>
+    </footer>
+  </div>
+</BaseLayout>

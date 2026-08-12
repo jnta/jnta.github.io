@@ -1,0 +1,22 @@
+---
+import SocialLinks from './SocialLinks';
+import ThemeToggle from './ThemeToggle';
+import { SITE } from '../lib/site';
+---
+
+<header class="border-b border-line">
+  <div class="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-6 py-4">
+    <a href="/" class="group flex flex-col">
+      <span class="font-brand text-2xl font-semibold tracking-tight text-ink transition-colors group-hover:text-terracotta">
+        {SITE.name}
+      </span>
+      <span class="hidden font-mono text-xs text-muted sm:block">{SITE.tagline}</span>
+    </a>
+
+    <div class="flex items-center gap-2">
+      <SocialLinks />
+      <div class="mx-1 hidden h-6 w-px bg-line sm:block" />
+      <ThemeToggle client:load />
+    </div>
+  </div>
+</header>
